@@ -1,0 +1,24 @@
+// Cloudflare deployment: a small Worker (cloudflare/worker.ts) that forwards
+// every request to one container running the NestJS app (Dockerfile).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Must match the Worker name in the Cloudflare dashboard.
+  "name": "se4458",
+  "main": "cloudflare/worker.ts",
+  "compatibility_date": "2026-10-01",
+  "observability": { "enabled": true },
+  "containers": [
+    {
+      "class_name": "PlaylistContainer",
+      "image": "./Dockerfile",
+      // 256 MiB RAM, enough for this app and the cheapest option.
+      "instance_type": "lite",
+      // One instance only: the playlist lives in that instance's memory.
+      "max_instances": 1,
+    },
+  ],
+  "durable_objects": {
+    "bindings": [{ "name": "PLAYLIST", "class_name": "PlaylistContainer" }],
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PlaylistContainer"] }],
+}

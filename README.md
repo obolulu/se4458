@@ -7,9 +7,9 @@ A backend-only REST API for the music **Playlist** screen from the assignment mo
 | | |
 |---|---|
 | Source code | https://github.com/obolulu/se4458 |
-| Live Swagger | `<RENDER_URL>/api-docs` |
+| Live Swagger | `<CLOUDFLARE_URL>/api-docs` |
 
-> The live server runs on Render's free plan. It sleeps after about 15 minutes without traffic, so the first request can take up to a minute.
+> The live server runs in a Cloudflare Container that sleeps after 15 minutes without traffic, so the first request after a pause can take a few seconds while it starts.
 
 ## Tech stack
 
@@ -17,7 +17,7 @@ A backend-only REST API for the music **Playlist** screen from the assignment mo
 - **@nestjs/swagger** for the OpenAPI document and Swagger UI at `/api-docs`
 - **class-validator / class-transformer** for request validation
 - **Jest + supertest** for unit and end-to-end tests
-- Deployed on **Render** (Web Service)
+- Deployed on **Cloudflare Containers**: a small Worker forwards every request to one container running the app (see [Deployment](#deployment-cloudflare))
 
 ## Design
 
@@ -146,7 +146,7 @@ Errors use Nest's standard shape: `{ "statusCode": 400, "message": [...], "error
 ## Assumptions
 
 - **Duration is stored in whole seconds.** The mockup's `3:32` is 212 seconds. Clients format it for display.
-- **Data lives in memory only.** There is no database, as the assignment requires. Everything resets to the 5 seed songs when the server restarts, and on Render's free plan that also happens when the service wakes up after sleeping.
+- **Data lives in memory only.** There is no database, as the assignment requires. Everything resets to the 5 seed songs when the server restarts, and on Cloudflare that also happens when the container starts again after sleeping.
 - **There is no authentication.** It is a single shared playlist.
 - **Album names were added to the seed data.** The mockup does not show albums, but the search box says "songs, artist, or album", so the real album names were used (After Hours, Future Nostalgia, Fine Line, Justice).
 - **Cover images:** the seed songs use placeholder images from `picsum.photos`, since the mockup's album art is not available as files.
@@ -166,6 +166,8 @@ Errors use Nest's standard shape: `{ "statusCode": 400, "message": [...], "error
 5. **`R&B` in query strings.** `?genre=R&B` is read as `genre=R` plus an empty `B` parameter, which fails as an unknown parameter. The `&` must be encoded: `?genre=R%26B`. Swagger UI encodes it automatically.
 6. **Swagger tag order.** Swagger listed tags in the order the controllers were registered, so "Health" appeared before "Songs". **Fix:** declared the tags explicitly with `DocumentBuilder.addTag()`.
 7. **PATCH with `null`** (caught while writing the update logic). `PartialType` marks every field `@IsOptional()`, and class-validator skips validation for `null` too, so `{"title": null}` would have passed. **Fix:** the service rejects `null` for required fields with 400 and treats `null` as "clear" for the optional ones.
+8. **Cloudflare showed "Hello World" instead of the API.** The first Cloudflare setup created a plain Worker, which runs Cloudflare's starter code in V8 isolates, not a long-running Node server, so none of the NestJS app was running. Plain Workers also can't keep in-memory data reliably, because requests can reach different, short-lived isolates. **Fix:** deploy with **Cloudflare Containers**. A `Dockerfile` builds the app image, and a small Worker (`cloudflare/worker.ts`) forwards every request to one container instance (`max_instances: 1`), so all users share one in-memory playlist.
+9. **Wrangler needs Docker to deploy containers locally.** `wrangler deploy`, even with `--dry-run`, fails without the Docker CLI because it builds the image first. **Fix:** deploy through Cloudflare's Git integration (Workers Builds), which builds the Dockerfile on Cloudflare's side, so no local Docker is needed.
 
 ## Run locally
 
@@ -194,16 +196,41 @@ npm run test:e2e    # end-to-end tests for every endpoint, including 400/404 cas
 
 The e2e tests start the real app with the same global configuration (`configureApp`) and a fresh in-memory store for each test.
 
-## Deployment (Render)
+## Deployment (Cloudflare)
 
-1. Push this repository to GitHub.
-2. On [Render](https://render.com), choose **New → Web Service** and connect the repository.
-3. Settings:
-   - Runtime: **Node**
-   - Build command: `npm install && npm run build`
-   - Start command: `npm run start:prod`
-   - Instance type: **Free**
-   - Health check path (optional): `/health`
-4. Render sets `PORT`, and the app listens on `0.0.0.0:$PORT`. Swagger is then at `https://<service>.onrender.com/api-docs`.
+The app is a normal long-running Node server, so it runs in a **Cloudflare Container**:
 
-Render was picked over Vercel because a Render Web Service is a long-running process, so the in-memory data stays between requests. On a serverless platform each request can hit a fresh instance and lose it.
+```
+request ─▶ Worker (cloudflare/worker.ts) ─▶ PlaylistContainer (1 instance, Dockerfile) ─▶ NestJS on port 3000
+```
+
+| File | Purpose |
+|---|---|
+| `Dockerfile` | Two-stage build: `npm ci` + `npm run build`, then a slim image with production dependencies and `dist/`, started with `node dist/main` on port 3000 |
+| `.dockerignore` | Keeps `node_modules`, `dist`, tests and docs out of the image |
+| `wrangler.jsonc` | Worker name, the container (`instance_type: lite`, `max_instances: 1`) and its Durable Object binding |
+| `cloudflare/worker.ts` | Forwards every request to the single container. It sleeps after 15 idle minutes. |
+
+Requirements: a Cloudflare account on the **Workers Paid plan** (Containers are not available on the free plan).
+
+Steps (no local Docker needed):
+
+1. In the Cloudflare dashboard, open **Workers & Pages → Create → Import a repository**, and pick this GitHub repo.
+2. Set the project name to **`se4458`**. It must match `name` in `wrangler.jsonc`, or the build fails.
+3. Keep the defaults: root directory `/`, deploy command `npx wrangler deploy`.
+4. Click **Deploy**. Cloudflare installs the dependencies, builds the Docker image and starts the Worker. The first deploy takes a few minutes, and requests can fail for a few minutes after it while the container is provisioned.
+5. Open `https://se4458.<your-subdomain>.workers.dev/api-docs`.
+
+Every push to `main` redeploys automatically.
+
+Deploying from your own machine with `npx wrangler login` and then `npx wrangler deploy` also works, but needs Docker Desktop running.
+
+### Alternative: Render
+
+The same code runs on Render's free plan with no Cloudflare files involved:
+
+1. On [Render](https://render.com), choose **New → Web Service** and connect the repository.
+2. Runtime **Node**, build command `npm install && npm run build`, start command `npm run start:prod`, instance type **Free**, health check path `/health`.
+3. Render sets `PORT`, and the app listens on `0.0.0.0:$PORT`. Swagger is then at `https://<service>.onrender.com/api-docs`.
+
+A long-running host (a container or a Render Web Service) is needed because the data lives in memory. On serverless platforms such as Vercel or plain Cloudflare Workers, each request can hit a fresh instance and lose it.

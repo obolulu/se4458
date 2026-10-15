@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+.git
+.wrangler
+docs
+test
+cloudflare
+*.md
+.env
+.env.*
