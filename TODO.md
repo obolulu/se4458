@@ -9,20 +9,20 @@ Spec and decisions are in `CLAUDE.md`. Tick boxes as you go, commit after each p
 - [x] `git init`, add `.gitignore` (node_modules, dist, .env), first commit
 
 ## Phase 1: Core API
-- [ ] Generate `songs` module/controller/service
-- [ ] `Song` entity (see data model in CLAUDE.md)
-- [ ] DTOs: `CreateSongDto`, `UpdateSongDto`, `MovePositionDto`, `QuerySongsDto` (with validation + `@ApiProperty` examples)
-- [ ] Seed the 5 songs from the mockup in `SongsService`
-- [ ] `GET /songs` with `search`, `genre`, `favorite`, `sortBy`, `order`
-- [ ] `GET /songs/:id`
-- [ ] `POST /songs` (201, appended at end, UUID id)
-- [ ] `PUT /songs/:id` and `PATCH /songs/:id`
-- [ ] `DELETE /songs/:id` (returns removed song, re-numbers positions)
-- [ ] `PATCH /songs/:id/favorite` (toggle)
-- [ ] `PATCH /songs/:id/position` (move + shift, 400 if out of range)
-- [ ] `GET /playlist/summary` (`17 min 26 sec` for the seed data)
-- [ ] `GET /genres`
-- [ ] Commit
+- [x] Generate `songs` module/controller/service
+- [x] `Song` entity (see data model in CLAUDE.md)
+- [x] DTOs: `CreateSongDto`, `UpdateSongDto`, `MovePositionDto`, `QuerySongsDto` (with validation + `@ApiProperty` examples)
+- [x] Seed the 5 songs from the mockup in `SongsService`
+- [x] `GET /songs` with `search`, `genre`, `favorite`, `sortBy`, `order`
+- [x] `GET /songs/:id`
+- [x] `POST /songs` (201, appended at end, UUID id)
+- [x] `PUT /songs/:id` and `PATCH /songs/:id`
+- [x] `DELETE /songs/:id` (returns removed song, re-numbers positions)
+- [x] `PATCH /songs/:id/favorite` (toggle)
+- [x] `PATCH /songs/:id/position` (move + shift, 400 if out of range)
+- [x] `GET /playlist/summary` (`17 min 26 sec` for the seed data)
+- [x] `GET /genres`
+- [x] Commit
 
 ## Phase 2: App setup and Swagger
 - [ ] Global `ValidationPipe` (whitelist, forbidNonWhitelisted, transform)
