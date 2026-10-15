@@ -34,14 +34,14 @@ Spec and decisions are in `CLAUDE.md`. Tick boxes as you go, commit after each p
 - [x] Commit
 
 ## Phase 3: Verify locally
-- [ ] `npm run start:dev`, open `http://localhost:3000/api-docs`
-- [ ] Try every endpoint from Swagger, including the error cases (404 unknown id, 400 bad body, 400 bad position)
-- [ ] Check: search "weeknd" returns 2 songs, `genre=R&B` returns 1, `favorite=true` returns 3, sort by duration works asc and desc
-- [ ] Check: delete song 1 then positions are 1..4; move a song and the order shifts correctly
-- [ ] Check: summary matches the sum of durations
-- [ ] Add e2e tests (supertest) for the main flows and make `npm run test:e2e` pass
-- [ ] `npm run build` and `npm run start:prod` both work
-- [ ] Commit
+- [x] `npm run start:dev`, open `http://localhost:3000/api-docs`
+- [x] Try every endpoint from Swagger, including the error cases (404 unknown id, 400 bad body, 400 bad position)
+- [x] Check: search "weeknd" returns 2 songs, `genre=R&B` returns 1, `favorite=true` returns 3, sort by duration works asc and desc
+- [x] Check: delete song 1 then positions are 1..4; move a song and the order shifts correctly
+- [x] Check: summary matches the sum of durations
+- [x] Add e2e tests (supertest) for the main flows and make `npm run test:e2e` pass
+- [x] `npm run build` and `npm run start:prod` both work
+- [x] Commit
 
 ## Phase 4: README
 - [ ] Write `README.md` with all sections listed in `CLAUDE.md` (leave the two link placeholders for now)
@@ -77,3 +77,4 @@ Add each real problem as you hit it: what happened, cause, fix. These go into th
 
 - **Nest CLI 12 crashed on scaffold.** `npx @nestjs/cli@latest new` failed with `ERR_REQUIRE_CYCLE_MODULE` (cannot `require()` the ES module `ora`). Cause: CLI 12 pulls an ESM-only `ora` through `@angular-devkit/schematics`, which hits a `require(esm)` bug in Node 22.12. Fix: scaffolded with `npx @nestjs/cli@11` instead.
 - **`@nestjs/swagger` peer-dependency conflict.** `npm i @nestjs/swagger` installed v12, which needs `@nestjs/common@^12`, but the CLI 11 scaffold uses Nest 11, so npm stopped with `ERESOLVE`. Fix: installed `@nestjs/swagger@^11` to match the Nest 11 packages, instead of forcing with `--legacy-peer-deps`.
+- **CRLF line-ending warnings on Windows.** Every `git add` warned "LF will be replaced by CRLF" because Git's `core.autocrlf` is on, while Prettier formats files with LF. A checkout with CRLF endings would make the Prettier ESLint rule flag every line. Fix: added `.gitattributes` with `* text=auto eol=lf` so the repo always stores and checks out LF.
