@@ -1,0 +1,14 @@
+# Render Blueprint: Dashboard → New → Blueprint → pick this repo.
+services:
+  - type: web
+    name: se4458-playlist-api
+    runtime: node
+    plan: free
+    # Dev dependencies are needed for `nest build`.
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"

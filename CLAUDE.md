@@ -28,7 +28,7 @@ Source files for reference (in `docs/`):
 - `@nestjs/swagger` for OpenAPI docs
 - `class-validator` + `class-transformer` for DTO validation
 - Jest + supertest for a few e2e tests (optional but nice)
-- Deploy target: **Cloudflare Containers** (Worker in `cloudflare/worker.ts` forwards to one container built from `Dockerfile`, config in `wrangler.jsonc`). Not Vercel or plain Workers: serverless runtimes can reset in-memory data between requests. Render (free Web Service) also works as a fallback.
+- Deploy target: **Render** (free Web Service, `render.yaml` Blueprint). Not Vercel or plain Cloudflare Workers: serverless runtimes can reset in-memory data between requests. A Cloudflare Containers setup (`Dockerfile`, `wrangler.jsonc`, `cloudflare/worker.ts`) is kept as a paid-plan alternative.
 
 ## Data model: `Song`
 

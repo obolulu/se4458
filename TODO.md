@@ -53,13 +53,15 @@ Spec and decisions are in `CLAUDE.md`. Tick boxes as you go, commit after each p
 - [x] `git remote add origin ...` and push
 - [x] Put the real repo link in the README
 
-## Phase 6: Deploy to Cloudflare Containers (needs the user)
-- [x] Add `Dockerfile`, `.dockerignore`, `wrangler.jsonc`, `cloudflare/worker.ts`
-- [x] Validate with `npx wrangler deploy --dry-run --containers-rollout=none` and a production-only install of `dist/`
-- [ ] User is on the Workers Paid plan and imports the GitHub repo in Workers & Pages, with the project named `se4458`
-- [ ] Open `https://se4458.<subdomain>.workers.dev/api-docs` and confirm Swagger loads with the seed data
+## Phase 6: Deploy to Render (needs the user)
+- [x] Add `render.yaml` Blueprint (free Node Web Service, `npm ci && npm run build`, `npm run start:prod`, health check `/health`)
+- [x] Verify a fresh clone builds and serves Swagger with those commands
+- [ ] User signs in to Render with GitHub, then New → Blueprint → `obolulu/se4458` → Apply
+- [ ] Open `https://<service>.onrender.com/api-docs` and confirm Swagger loads with the seed data
 - [ ] Put the live link in the README and push
 - [ ] Re-test a few endpoints on the live URL
+
+Cloudflare Containers files (`Dockerfile`, `wrangler.jsonc`, `cloudflare/worker.ts`) are kept as a paid-plan alternative.
 
 ## Phase 7: Final check and submission
 - [ ] README has: repo link, live link, design, assumptions, issues encountered
@@ -84,3 +86,4 @@ Add each real problem as you hit it: what happened, cause, fix. These go into th
 - **PATCH with `null` (found while writing the update logic).** `PartialType` makes fields `@IsOptional()`, which also skips validation for `null`, so `{"title": null}` would pass. Fix: the service rejects `null` for required fields; `null` clears `album`/`coverUrl`.
 - **Cloudflare showed "Hello World".** The first Cloudflare setup was a plain Worker (Cloudflare's starter code), not our app. Plain Workers can't run a long-lived Node server or keep in-memory data reliably. Fix: Cloudflare Containers, with a Worker that forwards to one container.
 - **Wrangler needs Docker for container deploys.** Even `--dry-run` fails without the Docker CLI. Fix: deploy via Workers Builds (Git integration), which builds the Dockerfile on Cloudflare.
+- **Cloudflare free plan not enough.** Containers are paid-only; plain Workers allow 10 ms CPU per request (too little for NestJS startup) and no reliable in-memory state. Decision: Render free plan, no code changes.
