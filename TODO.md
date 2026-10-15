@@ -25,13 +25,13 @@ Spec and decisions are in `CLAUDE.md`. Tick boxes as you go, commit after each p
 - [x] Commit
 
 ## Phase 2: App setup and Swagger
-- [ ] Global `ValidationPipe` (whitelist, forbidNonWhitelisted, transform)
-- [ ] CORS enabled
-- [ ] Swagger at `/api-docs` with title/description/version
-- [ ] `@ApiTags`, `@ApiOperation`, `@ApiResponse` on every endpoint
-- [ ] `/` redirects to `/api-docs`
-- [ ] Listen on `process.env.PORT || 3000` and `0.0.0.0`
-- [ ] Commit
+- [x] Global `ValidationPipe` (whitelist, forbidNonWhitelisted, transform)
+- [x] CORS enabled
+- [x] Swagger at `/api-docs` with title/description/version
+- [x] `@ApiTags`, `@ApiOperation`, `@ApiResponse` on every endpoint
+- [x] `/` redirects to `/api-docs`
+- [x] Listen on `process.env.PORT || 3000` and `0.0.0.0`
+- [x] Commit
 
 ## Phase 3: Verify locally
 - [ ] `npm run start:dev`, open `http://localhost:3000/api-docs`
@@ -70,7 +70,7 @@ Spec and decisions are in `CLAUDE.md`. Tick boxes as you go, commit after each p
 ## Optional extras (only if time allows)
 - [ ] Pagination on `GET /songs`
 - [ ] `POST /songs/reorder` to set a full order at once
-- [ ] Simple rate limit or health endpoint (`GET /health`)
+- [x] Health endpoint (`GET /health`)
 
 ## Issues log
 Add each real problem as you hit it: what happened, cause, fix. These go into the README "Issues encountered" section.
