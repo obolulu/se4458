@@ -49,9 +49,9 @@ Spec and decisions are in `CLAUDE.md`. Tick boxes as you go, commit after each p
 - [x] Commit
 
 ## Phase 5: GitHub (needs the user)
-- [ ] User creates a GitHub repo (public, or accessible to the instructor)
-- [ ] `git remote add origin ...` and push
-- [ ] Put the real repo link in the README
+- [x] User creates a GitHub repo (public, or accessible to the instructor)
+- [x] `git remote add origin ...` and push
+- [x] Put the real repo link in the README
 
 ## Phase 6: Deploy to Render (needs the user)
 - [ ] User creates a Render account and a new **Web Service** from the GitHub repo

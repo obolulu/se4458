@@ -6,7 +6,7 @@ A backend-only REST API for the music **Playlist** screen from the assignment mo
 
 | | |
 |---|---|
-| Source code | `<GITHUB_REPO_URL>` |
+| Source code | https://github.com/obolulu/se4458 |
 | Live Swagger | `<RENDER_URL>/api-docs` |
 
 > The live server runs on Render's free plan. It sleeps after about 15 minutes without traffic, so the first request can take up to a minute.
