@@ -44,9 +44,9 @@ Spec and decisions are in `CLAUDE.md`. Tick boxes as you go, commit after each p
 - [x] Commit
 
 ## Phase 4: README
-- [ ] Write `README.md` with all sections listed in `CLAUDE.md` (leave the two link placeholders for now)
-- [ ] Endpoint table, design, assumptions, how to run, how to test
-- [ ] Commit
+- [x] Write `README.md` with all sections listed in `CLAUDE.md` (leave the two link placeholders for now)
+- [x] Endpoint table, design, assumptions, how to run, how to test
+- [x] Commit
 
 ## Phase 5: GitHub (needs the user)
 - [ ] User creates a GitHub repo (public, or accessible to the instructor)
@@ -78,3 +78,7 @@ Add each real problem as you hit it: what happened, cause, fix. These go into th
 - **Nest CLI 12 crashed on scaffold.** `npx @nestjs/cli@latest new` failed with `ERR_REQUIRE_CYCLE_MODULE` (cannot `require()` the ES module `ora`). Cause: CLI 12 pulls an ESM-only `ora` through `@angular-devkit/schematics`, which hits a `require(esm)` bug in Node 22.12. Fix: scaffolded with `npx @nestjs/cli@11` instead.
 - **`@nestjs/swagger` peer-dependency conflict.** `npm i @nestjs/swagger` installed v12, which needs `@nestjs/common@^12`, but the CLI 11 scaffold uses Nest 11, so npm stopped with `ERESOLVE`. Fix: installed `@nestjs/swagger@^11` to match the Nest 11 packages, instead of forcing with `--legacy-peer-deps`.
 - **CRLF line-ending warnings on Windows.** Every `git add` warned "LF will be replaced by CRLF" because Git's `core.autocrlf` is on, while Prettier formats files with LF. A checkout with CRLF endings would make the Prettier ESLint rule flag every line. Fix: added `.gitattributes` with `* text=auto eol=lf` so the repo always stores and checks out LF.
+- **Unencoded `R&B` in query strings.** `?genre=R&B` is parsed as `genre=R` plus a stray `B` parameter, so the API answers 400 `property B should not exist`. Not a bug: clients must send `genre=R%26B` (Swagger UI encodes it). Documented in the README.
+- **Swagger tag order.** Tags appeared in controller registration order ("Health" before "Songs"). Fix: `DocumentBuilder.addTag()` in the wanted order.
+- **Boolean query param (found while writing the DTO).** Implicit conversion would turn `?favorite=false` into `true`. Fix: explicit `@Transform` + `@IsBoolean`.
+- **PATCH with `null` (found while writing the update logic).** `PartialType` makes fields `@IsOptional()`, which also skips validation for `null`, so `{"title": null}` would pass. Fix: the service rejects `null` for required fields; `null` clears `album`/`coverUrl`.
